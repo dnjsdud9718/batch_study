@@ -53,12 +53,12 @@ public class JpaCursorConfiguration {
 
     private ItemReader<? extends Customer> customerItemReader() {
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("firstName", "L%");
+        parameters.put("firstname", "L%");
 
         return new JpaCursorItemReaderBuilder<Customer>()
                 .name("jpaCursorItemReader")
                 .entityManagerFactory(entityManagerFactory)
-                .queryString("select c from Customer c where c.firstName like :firstName")
+                .queryString("select c from Customer c where c.firstname like :firstname")
                 .parameterValues(parameters)
                 .build();
     }
