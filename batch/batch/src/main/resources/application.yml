@@ -24,6 +24,9 @@ spring:
 ##############
 ---
 spring:
+  sql:
+    init:
+      mode: always
   config:
     activate:
       on-profile: mysql
@@ -37,18 +40,19 @@ spring:
     jdbc:
       initialize-schema: always
     job:
-      enabled: false
+      enabled: true
       name: ${job.name:NONE} # ???? NO
 #      name: httpJob
 
-#  jpa:
-#    hibernate:
-#      ddl-auto: create
-#    properties:
-#      hibernate:
-#        #        show_sql: true # System.out?? ???.
-#        format_sql: true
-##        default_batch_fetch_size: 4
+  jpa:
+    hibernate:
+      ddl-auto: update
+#    show_sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    defer-datasource-initialization: true
+#        default_batch_fetch_size: 4
 
 ---
 
