@@ -27,9 +27,9 @@ public class JpaCursorConfiguration {
     private final EntityManagerFactory entityManagerFactory;
 
     @Bean
-    public Job job(JobRepository jobRepository, Step step) {
+    public Job job(JobRepository jobRepository, Step step1) {
         return new JobBuilder("batchJob", jobRepository)
-                .start(step)
+                .start(step1)
                 .build();
     }
 
