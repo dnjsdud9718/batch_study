@@ -31,24 +31,24 @@ spring:
     hikari:
       jdbc-url: jdbc:mysql://localhost:3306/batch?useUnicode=true&characterEncoding=utf8
       username: root
-      password: 1234
+      password: dnjsdud1346@
       driver-class-name: com.mysql.cj.jdbc.Driver
   batch:
     jdbc:
       initialize-schema: always
     job:
-      enabled: false
+      enabled: true
       name: ${job.name:NONE} # ???? NO
 #      name: httpJob
 
-#  jpa:
-#    hibernate:
-#      ddl-auto: create
-#    properties:
-#      hibernate:
-#        #        show_sql: true # System.out?? ???.
-#        format_sql: true
-##        default_batch_fetch_size: 4
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        #        show_sql: true # System.out?? ???.
+        format_sql: true
+#        default_batch_fetch_size: 4
 
 ---
 
