@@ -12,15 +12,8 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.NonTransientResourceException;
 import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
-import org.springframework.batch.repeat.CompletionPolicy;
-import org.springframework.batch.repeat.RepeatCallback;
-import org.springframework.batch.repeat.RepeatContext;
-import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.batch.repeat.exception.ExceptionHandler;
 import org.springframework.batch.repeat.exception.SimpleLimitExceptionHandler;
-import org.springframework.batch.repeat.policy.CompositeCompletionPolicy;
-import org.springframework.batch.repeat.policy.SimpleCompletionPolicy;
-import org.springframework.batch.repeat.policy.TimeoutTerminationPolicy;
 import org.springframework.batch.repeat.support.RepeatTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,6 +42,9 @@ public class RepeatConfiguration {
                     @Override
                     public String read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
                         i++;
+                        if (i == 1) {
+                            throw new IllegalArgumentException("this is skipped");
+                        }
                         return i > 3 ? null : "item" + i;
                     }
                 })
@@ -58,30 +54,16 @@ public class RepeatConfiguration {
                     @Override
                     public String process(String item) throws Exception {
 
-//                        repeatTemplate.setCompletionPolicy(new SimpleCompletionPolicy(3));
-                        CompositeCompletionPolicy completionPolicy = new CompositeCompletionPolicy();
-                        CompletionPolicy[] completionPolicies = {
-                                new SimpleCompletionPolicy(3),
-                                new TimeoutTerminationPolicy(3000)
-                        };
-                        completionPolicy.setPolicies(completionPolicies);
+                        throw new IllegalStateException("this is retried");
 
-                        repeatTemplate.setExceptionHandler(simpleExceptionHandler());
-
-                        repeatTemplate.iterate(new RepeatCallback() {
-
-                            @Override
-                            public RepeatStatus doInIteration(RepeatContext context) throws Exception {
-                                log.info("RepeatTemplate is testing");
-                                throw new RuntimeException("Exception is occurred");
-//                                return RepeatStatus.CONTINUABLE;
-                            }
-                        });
-
-                        return item;
                     }
                 })
                 .writer(items -> log.info("item = {}", items))
+                .faultTolerant()
+                .skip(IllegalArgumentException.class)
+                .skipLimit(2)
+                .retry(IllegalStateException.class)
+                .retryLimit(2)
                 .build();
 
     }
