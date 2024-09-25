@@ -30,7 +30,7 @@ public class FcmService {
 
         Message message = makeMessage(fcmSendDto);
 
-        String response = "0";
+        String response = "FAIL";
 
         try {
             response = FirebaseMessaging.getInstance().send(message);
@@ -40,7 +40,7 @@ public class FcmService {
             throw new RuntimeException(e);
         }
 
-        return new CommonResponse("ok");
+        return new CommonResponse("SUCCESS");
     }
 
 

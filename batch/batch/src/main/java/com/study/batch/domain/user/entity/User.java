@@ -49,6 +49,9 @@ public class User {
     @Builder.Default
     private UserStatus status = UserStatus.ACTIVE;
 
+    @Column(name = "user_key")
+    private String userKey;
+
     @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
     private List<Seed> seeds = new ArrayList<>();

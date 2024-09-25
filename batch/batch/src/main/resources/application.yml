@@ -4,6 +4,15 @@ spring:
   application:
     name: dong
 
+ssafys:
+  api:
+    managerId : "dnjsdud9718@naver.com"
+    apiKey : "acc7fdf74f8b4dd2820df5ec83510998"
+    institutionCode : "00100"
+    fintechAppNo : "001"
+    url : "https://finopenapi.ssafy.io/ssafy/api/v1"
+    endEmail : "@ssafy.com"
+
 ---
 
 spring:
@@ -71,4 +80,4 @@ spring:
 logging:
   level:
     org.hibernate.SQL: debug
-#    org.hibernate.orm.jdbc.bind: trace
+    org.hibernate.orm.jdbc.bind: trace

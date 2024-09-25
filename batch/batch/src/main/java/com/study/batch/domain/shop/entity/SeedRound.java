@@ -17,7 +17,6 @@ import lombok.ToString;
 
 import java.time.LocalDate;
 
-import static com.study.batch.domain.shop.entity.TransferStatus.*;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
@@ -44,4 +43,10 @@ public class SeedRound {
     private TransferStatus status;
     private LocalDate transferDate;
 
+    public void transferSucceed() {
+        status = TransferStatus.SUCCESS;
+    }
+    public void transferFailed() {
+        status = TransferStatus.FAIL;
+    }
 }
