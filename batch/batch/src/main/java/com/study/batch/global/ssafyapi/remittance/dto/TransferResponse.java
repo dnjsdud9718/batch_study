@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-public class RemittanceResponse {
+public class TransferResponse {
     @JsonProperty("Header")
     private ResponseHeader header;
     @JsonProperty("REC")

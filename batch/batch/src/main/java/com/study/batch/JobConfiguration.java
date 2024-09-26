@@ -6,14 +6,12 @@ import com.study.batch.domain.alarm.TypeStatus;
 import com.study.batch.domain.alarm.repository.JpaAlarmRepository;
 import com.study.batch.domain.shop.entity.Seed;
 import com.study.batch.domain.shop.entity.SeedRound;
-import com.study.batch.domain.shop.entity.SeedStatus;
-import com.study.batch.domain.shop.entity.TransferStatus;
 import com.study.batch.domain.user.entity.User;
 import com.study.batch.global.alarm.dto.FcmSendDto;
 import com.study.batch.global.alarm.service.FcmService;
 import com.study.batch.global.common.CommonResponse;
-import com.study.batch.global.ssafyapi.remittance.dto.RemittanceResponse;
-import com.study.batch.global.ssafyapi.remittance.service.RemittanceService;
+import com.study.batch.global.ssafyapi.remittance.dto.TransferResponse;
+import com.study.batch.global.ssafyapi.remittance.service.TransferService;
 import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +23,9 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JpaPagingItemReader;
+import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -36,7 +36,6 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.study.batch.domain.shop.entity.TransferStatus.*;
 import static com.study.batch.domain.shop.entity.TransferStatus.FAIL;
 import static com.study.batch.domain.shop.entity.TransferStatus.NONE;
 import static java.time.format.DateTimeFormatter.ofPattern;
@@ -45,13 +44,13 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 @Configuration
 @RequiredArgsConstructor
 public class JobConfiguration {
-    private static final String FCM_TOKEN = "es2ey8msSVW9Miu7mgGQZD:APA91bHmWrxfuNR_hN03WE7UNpO8iN-30M70YBi8ese7Vsj3RzO0cyyMbRZmeyDQMFK-rVDEbQa4uVu9dz8vHLE2lKJOBXzKSR3LM42J2YMxmaqvSP4MwPgkDmlXulD-Ka8sdDbzgKh6";
+    private static final String FCM_TOKEN = "f1Td0XrURgOZol8QqyeeWi:APA91bFvtcEh5-CojATEfMnFKPKEl4fk_9wQvKgwN_eSwFNvm4ixt8MZHThMKvTnzZ4V-qtR8d0_Qs7_xuq1n0cK1rYSuWEgMhVe5iRMK0t0m2eb91PS-g4htLtNJ8Y62WkJwxi0vH1v";
     public static final String TITLE = "종잣돈 모으기 송금 알림";
     private final int CHUNK_SIZE = 3;
 
     private final EntityManagerFactory entityManagerFactory;
     private final FcmService fcmService;
-    private final RemittanceService remittanceService;
+    private final TransferService transferService;
     private final JpaAlarmRepository alarmRepository;
 
     @Bean
@@ -70,7 +69,17 @@ public class JobConfiguration {
                 .<SeedRound, SeedRound>chunk(CHUNK_SIZE, transactionManager)
                 .reader(itemReader(null))
                 .processor(itemProcessor())
-                .writer(items -> log.info("items = {}", items))
+                .writer(itemWriter())
+                .build();
+    }
+
+    @Bean
+    public ItemWriter<? super SeedRound> itemWriter() {
+
+        return new JpaItemWriterBuilder<>()
+                .entityManagerFactory(entityManagerFactory)
+                .usePersist(false)
+                .clearPersistenceContext(true)
                 .build();
     }
 
@@ -96,7 +105,8 @@ public class JobConfiguration {
 
         return (ItemProcessor<SeedRound, SeedRound>) item -> {
             if (!NONE.equals(item.getStatus())) {
-                return item;
+                log.info("item = {}", item);
+                return null;
             }
 
             Seed seed = item.getSeed();
@@ -105,7 +115,7 @@ public class JobConfiguration {
             Account withdrawalAccount = seed.getWithdrawalAccount();
             Long transferBalance = Long.valueOf(seed.getTransferAmount());
             // 1. 송금
-            RemittanceResponse response = remittanceService.getAccount(user.getUserKey(), depositAccount.getAccountNumber(), withdrawalAccount.getAccountNumber(), transferBalance);
+            TransferResponse response = transferService.transfer(user.getUserKey(), depositAccount.getAccountNumber(), withdrawalAccount.getAccountNumber(), transferBalance);
             // 2. 송금 결과 저장
             if (response.getHeader() == null) {
                 // FAIL
@@ -120,6 +130,7 @@ public class JobConfiguration {
             FcmSendDto fcm = FcmSendDto.builder()
                     .title(TITLE)
                     .body(message)
+//                    .token(user.getFCM())
                     .token(FCM_TOKEN)
                     .build();
 

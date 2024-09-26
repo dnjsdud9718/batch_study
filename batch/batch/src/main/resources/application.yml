@@ -34,7 +34,7 @@ spring:
       name: ${job.name:NONE}
 
     jdbc:
-      initialize-schema: always
+      initialize-schema: embedded
 
   jpa:
     #    hibernate:

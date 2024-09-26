@@ -37,6 +37,7 @@ public class FcmService {
             log.info("Response : {}", response);
         } catch (FirebaseMessagingException e) {
             log.info("failed to send message: {}", e.getMessage());
+            // TODO : Outbox Table에 저장?
             throw new RuntimeException(e);
         }
 

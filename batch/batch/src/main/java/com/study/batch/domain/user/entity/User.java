@@ -38,6 +38,8 @@ public class User {
 
     private String password;
 
+    @Column(name = "fcm_token_key")
+    private String fcmTokenKey;
 
     private String phone;
 

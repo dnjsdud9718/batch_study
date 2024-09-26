@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RemittanceRequest {
+public class TransferRequest {
     @JsonProperty("Header")
     private RequestHeader requestHeader;
     private String depositAccountNo;
