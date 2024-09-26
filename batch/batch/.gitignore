@@ -39,4 +39,4 @@ out/
 .vscode/
 
 ### firebase ###
-*firebase.json
+/**/*.json
